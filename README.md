@@ -1,0 +1,3 @@
+# GithubDLCountNotification
+
+githubのリリースのダウンロード数を一分ごとに取得して、増えたら通知するやつ
