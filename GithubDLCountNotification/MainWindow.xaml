@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GithubDLCountNotification"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="Gihubリリースダウンロード通知" Width="200" SizeToContent="Height" ResizeMode="NoResize">
+    <StackPanel Margin="3">
+        <TextBlock Text="ユーザー名" Margin="3, 3, 0, 0"/>
+        <TextBox Margin="3"/>
+        <TextBlock Text="リポジトリ名" Margin="3, 3, 0, 0"/>
+        <TextBox Margin="3"/>
+        <UniformGrid Rows="1" Margin="3">
+            <Button Content="開始"/>
+            <Button Content="終了"/>
+        </UniformGrid>
+    </StackPanel>
 </Window>
