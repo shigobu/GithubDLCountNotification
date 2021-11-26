@@ -35,6 +35,8 @@ namespace GithubDLCountNotification
 
         DispatcherTimer dispatcherTimer;
 
+        int lastDownloadCount = 0;
+
         internal Window MainWindow { get; set; }
 
         private string _userName = "";
@@ -70,6 +72,7 @@ namespace GithubDLCountNotification
         private void StartCommandExecute()
         {
             dispatcherTimer.Start();
+            lastDownloadCount = GetDownloadCount(UserName, RepositoryName);
             StartCommand.CanExecuteValue = false;
             StopCommand.CanExecuteValue = true;
         }
@@ -83,7 +86,18 @@ namespace GithubDLCountNotification
 
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            
+            int currentDownloadCount = GetDownloadCount(UserName, RepositoryName);
+            if (currentDownloadCount > lastDownloadCount)
+            {
+                //通知
+            }
+
+            lastDownloadCount = currentDownloadCount;
+        }
+
+        private int GetDownloadCount(string userName, string repositoryName)
+        {
+            return 0;//todo githubからデータ取得
         }
 
     }
