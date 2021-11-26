@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ namespace GithubDLCountNotification
         public ViewModel(Window mainWindow)
         {
             MainWindow = mainWindow;
+            httpClient = new HttpClient();
             StartCommand = new DelegateCommand(StartCommandExecute) { CanExecuteValue = true };
             StopCommand = new DelegateCommand(StopCommandExecute) { CanExecuteValue = false };
 
@@ -37,9 +40,14 @@ namespace GithubDLCountNotification
 
         int lastDownloadCount = 0;
 
+        /// <summary>
+        /// 唯一のhttpクライアント
+        /// </summary>
+        HttpClient httpClient;
+
         internal Window MainWindow { get; set; }
 
-        private string _userName = "";
+        private string _userName = "shigobu";
 
         public string UserName
         {
@@ -52,7 +60,7 @@ namespace GithubDLCountNotification
             }
         }
 
-        private string _repositoryName = "";
+        private string _repositoryName = "SAPIForVOICEVOX";
 
         public string RepositoryName
         {
@@ -69,10 +77,10 @@ namespace GithubDLCountNotification
 
         public DelegateCommand StopCommand { get; set; }
 
-        private void StartCommandExecute()
+        private async void StartCommandExecute()
         {
             dispatcherTimer.Start();
-            lastDownloadCount = GetDownloadCount(UserName, RepositoryName);
+            lastDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             StartCommand.CanExecuteValue = false;
             StopCommand.CanExecuteValue = true;
         }
@@ -84,9 +92,9 @@ namespace GithubDLCountNotification
             StopCommand.CanExecuteValue = false;
         }
 
-        private void DispatcherTimer_Tick(object sender, EventArgs e)
+        private async void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            int currentDownloadCount = GetDownloadCount(UserName, RepositoryName);
+            int currentDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             if (currentDownloadCount > lastDownloadCount)
             {
                 //通知
@@ -95,9 +103,25 @@ namespace GithubDLCountNotification
             lastDownloadCount = currentDownloadCount;
         }
 
-        private int GetDownloadCount(string userName, string repositoryName)
+        private async Task<int> GetDownloadCount(string userName, string repositoryName)
         {
-            return 0;//todo githubからデータ取得
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{userName}/{repositoryName}/releases");
+            request.Headers.Add("Accept", "application/vnd.github.v3+json");
+            request.Headers.Add("User-Agent", "shigobu");
+            using (var result = await httpClient.SendAsync(request))
+            {
+                string resBodyStr = await result.Content.ReadAsStringAsync();
+                JArray jsonArr = JArray.Parse(resBodyStr);
+                int count = 0;
+                foreach (JToken release in jsonArr)
+                {
+                    foreach (JToken asset in release["assets"])
+                    {
+                        count += asset.Value<int>("download_count");
+                    }
+                }
+                return count;
+            }
         }
 
     }
