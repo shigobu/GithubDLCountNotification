@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace GithubDLCountNotification
 {
@@ -17,6 +18,12 @@ namespace GithubDLCountNotification
             MainWindow = mainWindow;
             StartCommand = new DelegateCommand(StartCommandExecute) { CanExecuteValue = true };
             StopCommand = new DelegateCommand(StopCommandExecute) { CanExecuteValue = false };
+
+            dispatcherTimer = new DispatcherTimer()
+            {
+                Interval = new TimeSpan(0, 0, 90),
+            };
+            dispatcherTimer.Tick += DispatcherTimer_Tick;
         }
 
         #region INotifyPropertyChangedの実装
@@ -25,6 +32,8 @@ namespace GithubDLCountNotification
         private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
           => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         #endregion
+
+        DispatcherTimer dispatcherTimer;
 
         internal Window MainWindow { get; set; }
 
@@ -54,18 +63,27 @@ namespace GithubDLCountNotification
             }
         }
 
-        public ICommand StartCommand { get; set; }
+        public DelegateCommand StartCommand { get; set; }
 
-        public ICommand StopCommand { get; set; }
+        public DelegateCommand StopCommand { get; set; }
 
         private void StartCommandExecute()
         {
-
+            dispatcherTimer.Start();
+            StartCommand.CanExecuteValue = false;
+            StopCommand.CanExecuteValue = true;
         }
 
         private void StopCommandExecute()
         {
+            dispatcherTimer.Stop();
+            StartCommand.CanExecuteValue = true;
+            StopCommand.CanExecuteValue = false;
+        }
 
+        private void DispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            
         }
 
     }
