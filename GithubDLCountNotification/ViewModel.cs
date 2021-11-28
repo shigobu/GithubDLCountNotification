@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -83,6 +84,7 @@ namespace GithubDLCountNotification
             lastDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             StartCommand.CanExecuteValue = false;
             StopCommand.CanExecuteValue = true;
+
         }
 
         private void StopCommandExecute()
@@ -97,9 +99,11 @@ namespace GithubDLCountNotification
             int currentDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             if (currentDownloadCount > lastDownloadCount)
             {
-                //通知
+                new ToastContentBuilder()
+                 .AddText($"{RepositoryName}がダウンロードされました。")
+                 .AddText($"{currentDownloadCount - lastDownloadCount}回")
+                 .Show();
             }
-
             lastDownloadCount = currentDownloadCount;
         }
 
