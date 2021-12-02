@@ -81,8 +81,8 @@ namespace GithubDLCountNotification
         private async void StartCommandExecute()
         {
             dispatcherTimer.Start();
-            lastDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             StartCommand.CanExecuteValue = false;
+            lastDownloadCount = await GetDownloadCount(UserName, RepositoryName);
             StopCommand.CanExecuteValue = true;
 
         }
